@@ -1,0 +1,46 @@
+filebeat.config.inputs:
+  enabled: true
+  path: configs/*.yml
+  reload.enabled: true
+  reload.period: 10s
+
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
+
+
+processors:
+  - add_cloud_metadata: ~
+  - decode_json_fields:
+      fields: ["message"]
+      target: "json"
+      overwrite_keys: true  
+
+#output.redis:
+  #hosts: ["redis"]
+
+output.elasticsearch:
+  hosts: ["http://172.31.24.42:9200"] # replace the ip with the ip of your host running elasticsearch. Because I am running my test entirely in a cloud environment, I am using the private ip address of my monitoring stack.
+  #username: "filebeat_internal"
+  #password: "changeme"
+  indices:
+    - index: "filebeat-%{[agent.version]}-%{+yyyy.MM.dd}"
+  setup.kibana:   
+    host: "http://172.31.24.42:5601"
+
+
+logging.json: true
+logging.metrics.enabled: false
+
+# Write Filebeat own logs only to file to avoid catching them with itself in docker log files
+logging.level: error
+logging.to_files: false
+logging.to_syslog: false
+loggins.metrice.enabled: false
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644
+ssl.verification_mode: none
