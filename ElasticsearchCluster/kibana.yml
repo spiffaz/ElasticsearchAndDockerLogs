@@ -1,0 +1,7 @@
+---
+server.name: kibana
+server.host: 0.0.0.0
+elasticsearch.hosts: [ http://172.31.24.42:9200 ]
+
+monitoring.ui.container.elasticsearch.enabled: true
+monitoring.ui.container.logstash.enabled: true
